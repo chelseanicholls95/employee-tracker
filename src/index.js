@@ -1,4 +1,5 @@
 const Db = require("./db");
+const getAllEmployees = require("./utils/getAllEmployees");
 const getAnswers = require("./utils/getAnswers");
 
 const init = async () => {
@@ -89,9 +90,7 @@ const init = async () => {
     const { option } = await getAnswers(optionsQuestion);
 
     if (option === "viewAllEmployees") {
-      const query = await db.query(
-        "SELECT first_name, last_name, title, salary, name FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id"
-      );
+      const query = await getAllEmployees(db);
       console.table(query);
     }
 
@@ -107,6 +106,14 @@ const init = async () => {
         "SELECT title, salary, name, first_name, last_name FROM role LEFT JOIN department ON role.department_id = department.id LEFT JOIN employee ON employee.role_id = role.id"
       );
       console.table(query);
+    }
+
+    if (option === "addEmployee") {
+      await db.query(
+        `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ("Judy", "Roberts", 3, 2)`
+      );
+      const query2 = await getAllEmployees(db);
+      console.table(query2);
     }
 
     if (option === "viewAllRoles") {
