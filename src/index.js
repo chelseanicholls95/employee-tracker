@@ -88,6 +88,39 @@ const init = async () => {
 
     const { option } = await getAnswers(optionsQuestion);
 
+    if (option === "viewAllEmployees") {
+      const query = await db.query(
+        "SELECT first_name, last_name, title, salary, name FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id"
+      );
+      console.table(query);
+    }
+
+    if (option === "viewAllEmployeesByDepartment") {
+      const query = await db.query(
+        "SELECT name, title, salary, first_name, last_name FROM department LEFT JOIN role ON department.id = role.department_id LEFT JOIN employee ON role.id = employee.role_id"
+      );
+      console.table(query);
+    }
+
+    if (option === "viewAllEmployeesByRole") {
+      const query = await db.query(
+        "SELECT title, salary, name, first_name, last_name FROM role LEFT JOIN department ON role.department_id = department.id LEFT JOIN employee ON employee.role_id = role.id"
+      );
+      console.table(query);
+    }
+
+    if (option === "viewAllRoles") {
+      const query = await db.query(
+        "SELECT title, salary, name FROM role LEFT JOIN department ON role.department_id = department.id"
+      );
+      console.table(query);
+    }
+
+    if (option === "viewAllDepartments") {
+      const query = await db.query("SELECT name FROM department");
+      console.table(query);
+    }
+
     if (option === "exit") {
       inProgress = false;
       await db.end();
