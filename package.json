@@ -4,7 +4,7 @@
   "description": "[Description](#description)  \r [Technologies Used](#technologies-used)  \r [Getting Started](#getting-started)  \r [Video of Working Application](#link-to-video-of-working-application)  \r [License](#license)  \r [Questions](#questions)",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node ./src/index.js"
   },
   "repository": {
     "type": "git",

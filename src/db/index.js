@@ -1,10 +1,9 @@
 const mysql = require("mysql");
-const { on } = require("node:events");
 
 class Db {
   constructor(database) {
     const dbOptions = {
-      host: "localhost",
+      host: "127.0.0.1",
       user: "root",
       password: "password",
       port: 3306,
@@ -19,9 +18,7 @@ class Db {
     return new Promise((resolve, reject) => {
       const onConnect = (error) => {
         if (error) reject(error);
-        console.log(
-          `Successfully connected to ${this.database} database with id ${this.connection.threadId}.`
-        );
+        console.log(`Successfully connected to ${this.database} database.`);
         resolve();
       };
 
