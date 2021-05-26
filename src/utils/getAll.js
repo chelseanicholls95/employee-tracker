@@ -6,4 +6,12 @@ const getAllEmployees = async (db) => {
   return query;
 };
 
-module.exports = getAllEmployees;
+const getAllRoles = async (db) => {
+  const query = await db.query(
+    "SELECT title, salary, department FROM role LEFT JOIN department ON role.department_id = department.id"
+  );
+
+  return query;
+};
+
+module.exports = { getAllEmployees, getAllRoles };
