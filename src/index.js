@@ -109,6 +109,15 @@ const init = async () => {
     }
 
     if (option === "viewAllEmployeesByDepartment") {
+      const allDepartments = await db.selectAll("department");
+      const question = [
+        {
+          type: "list",
+          message: "What department would you like to view?",
+          name: "departmentId",
+          choices: generateDepartments(allDepartments),
+        },
+      ];
       const query = await db.query(
         "SELECT department, title, salary, first_name, last_name FROM department LEFT JOIN role ON department.id = role.department_id LEFT JOIN employee ON role.id = employee.role_id"
       );
@@ -188,55 +197,67 @@ const init = async () => {
         ["id", employeeId],
         true
       );
+
+      console.info(`Employee removed from ${db.database} database.`);
     }
 
-    // if (option === "updateEmployee") {
-    //   const allEmployees = await db.selectAll("employee");
+    if (option === "updateEmployee") {
+      const allEmployees = await db.selectAll("employee");
 
-    //   const questions = [
-    //     {
-    //       type: "list",
-    //       message: "What employee would you like to update?",
-    //       name: "employeeId",
-    //       choices: generateEmployees(allEmployees),
-    //     },
-    //     {
-    //       type: "confirm",
-    //       message: "Would you like to update the first name of the employee?",
-    //       name: "updateFirstName",
-    //     },
-    //     {
-    //       message: "Please enter the updated first name.",
-    //       name: "firstName",
-    //       when: (answer) => {
-    //         return answer.updateFirstName;
-    //       },
-    //     },
-    //     {
-    //       type: "confirm",
-    //       message: "Would you like to update the last name of the employee?",
-    //       name: "updateLastName",
-    //     },
-    //     {
-    //       message: "Please enter the updated last name.",
-    //       name: "lastName",
-    //       when: (answer) => {
-    //         return answer.updateLastName;
-    //       },
-    //     },
-    //   ];
+      const questions = [
+        {
+          type: "list",
+          message: "What employee would you like to update?",
+          name: "employeeId",
+          choices: generateEmployees(allEmployees),
+        },
+        {
+          type: "confirm",
+          message: "Would you like to update the first name of the employee?",
+          name: "updateFirstName",
+        },
+        {
+          message: "Please enter the updated first name.",
+          name: "firstName",
+          when: (answer) => {
+            return answer.updateFirstName;
+          },
+        },
+        {
+          type: "confirm",
+          message: "Would you like to update the last name of the employee?",
+          name: "updateLastName",
+        },
+        {
+          message: "Please enter the updated last name.",
+          name: "lastName",
+          when: (answer) => {
+            return answer.updateLastName;
+          },
+        },
+      ];
 
-    //   const { employeeId, firstName, lastName } = await getAnswers(questions);
+      const { firstName, lastName, employeeId } = await getAnswers(questions);
 
-    //   console.log(employeeId, firstName, lastName);
+      if (firstName === undefined) {
+        await db.parameterisedQuery(
+          `UPDATE employee SET last_name = ? WHERE ?? = "?";`,
+          [lastName, "id", employeeId]
+        );
+      } else if (lastName === undefined) {
+        await db.parameterisedQuery(
+          `UPDATE employee SET first_name = ? WHERE ?? = "?";`,
+          [firstName, "id", employeeId]
+        );
+      } else {
+        await db.parameterisedQuery(
+          `UPDATE employee SET first_name = ?, last_name = ? WHERE ?? = "?";`,
+          [firstName, lastName, "id", employeeId]
+        );
+      }
 
-    //   await db.parameterisedQuery(
-    //     `UPDATE employee SET first_name = ?, last_name = ? WHERE ?? = "?";`,
-    //     [firstName, lastName, (id = `"${employeeId}"`)]
-    //   );
-    //   const query2 = await getAllEmployees(db);
-    //   console.table(query2);
-    // }
+      console.info("Employee successfully updated.");
+    }
 
     if (option === "viewAllRoles") {
       const query = await getAllRoles(db);
