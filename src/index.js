@@ -1,10 +1,11 @@
 const Db = require("./db");
+
 const {
   generateRoles,
   generateEmployees,
   generateDepartments,
 } = require("./utils/generateChoices");
-const getAllEmployees = require("./utils/getAllEmployees");
+const { getAllEmployees, getAllRoles } = require("./utils/getAll");
 const getAnswers = require("./utils/getAnswers");
 
 const init = async () => {
@@ -182,9 +183,7 @@ const init = async () => {
     }
 
     if (option === "viewAllRoles") {
-      const query = await db.query(
-        "SELECT title, salary, department FROM role LEFT JOIN department ON role.department_id = department.id"
-      );
+      const query = await getAllRoles(db);
       console.table(query);
     }
 
@@ -209,11 +208,13 @@ const init = async () => {
         },
       ];
 
-      const { title, departmentId } = await getAnswers(questions);
+      const { title, salary, departmentId } = await getAnswers(questions);
 
-      // await db.query(
-      //   `INSERT INTO role (title, department_id) VALUES ("${firstName}", "${lastName}", ${roleId}, ${managerId})`
-      // );
+      const query = await db.query(
+        `INSERT INTO role (title, salary, department_id) VALUES ("${title}", ${salary}, ${departmentId})`
+      );
+      const query2 = await getAllRoles(db);
+      console.table(query2);
     }
 
     if (option === "viewAllDepartments") {
