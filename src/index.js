@@ -31,14 +31,14 @@ const init = async () => {
           name: "View All Employees",
         },
         {
-          short: "Employees By Department",
-          value: "viewAllEmployeesByDepartment",
-          name: "View All Employees By Department",
-        },
-        {
           short: "Employees By Role",
           value: "viewAllEmployeesByRole",
           name: "View All Employees By Role",
+        },
+        {
+          short: "Employees By Manager",
+          value: "viewAllEmployeesByManager",
+          name: "View All Employees By Manager",
         },
         {
           short: "Add Employee",
@@ -108,27 +108,27 @@ const init = async () => {
       console.table(query);
     }
 
-    if (option === "viewAllEmployeesByDepartment") {
-      const allDepartments = await db.selectAll("department");
+    if (option === "viewAllEmployeesByRole") {
+      const allRoles = await db.selectAll("role");
       const question = [
         {
           type: "list",
-          message: "What department would you like to view?",
-          name: "departmentId",
-          choices: generateDepartments(allDepartments),
+          message: "What role would you like to view?",
+          name: "roleId",
+          choices: generateRoles(allRoles),
         },
       ];
-      const query = await db.query(
-        "SELECT department, title, salary, first_name, last_name FROM department LEFT JOIN role ON department.id = role.department_id LEFT JOIN employee ON role.id = employee.role_id"
+
+      const { roleId } = await getAnswers(question);
+
+      const query = await db.parameterisedQuery(
+        `SELECT first_name, last_name FROM ?? WHERE ?? = "?"`,
+        ["employee", "role_id", roleId]
       );
       console.table(query);
     }
 
-    if (option === "viewAllEmployeesByRole") {
-      const query = await db.query(
-        "SELECT title, salary, department, first_name, last_name FROM role LEFT JOIN department ON role.department_id = department.id LEFT JOIN employee ON employee.role_id = role.id"
-      );
-      console.table(query);
+    if (option === "viewAllEmployeesByManager") {
     }
 
     if (option === "addEmployee") {
@@ -323,6 +323,31 @@ const init = async () => {
       console.table(query2);
     }
 
+    if (option === "removeRole") {
+      const allRoles = await db.selectAll("role");
+
+      const question = [
+        {
+          type: "list",
+          message: "Please select the role you would like to remove.",
+          name: "roleId",
+          choices: generateRoles(allRoles),
+        },
+      ];
+
+      const { roleId } = await getAnswers(question);
+
+      await db.parameterisedQuery(`DELETE FROM ?? WHERE ?? = "?"`, [
+        "role",
+        "id",
+        roleId,
+      ]);
+
+      console.info(
+        `Role has been successfully removed from ${db.database} database.`
+      );
+    }
+
     if (option === "viewAllDepartments") {
       const query = await getAllDepartments(db);
       console.table(query);
@@ -343,6 +368,34 @@ const init = async () => {
       );
       const query2 = await getAllDepartments(db);
       console.table(query2);
+    }
+
+    if (option === "removeDepartment") {
+      const allDepartments = await db.selectAll("department");
+
+      const question = [
+        {
+          type: "list",
+          message: "Please select the department you would like to remove.",
+          name: "departmentId",
+          choices: generateDepartments(allDepartments),
+        },
+      ];
+
+      const { departmentId } = await getAnswers(question);
+
+      await db.parameterisedQuery(`DELETE FROM ?? WHERE ?? = "?"`, [
+        "department",
+        "id",
+        departmentId,
+      ]);
+
+      console.info(
+        `Department has been successfully removed from ${db.database} database.`
+      );
+    }
+
+    if (option === "viewBudget") {
     }
 
     if (option === "exit") {
