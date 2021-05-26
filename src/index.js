@@ -51,6 +51,10 @@ const init = async () => {
           name: "Remove an Employee",
         },
         {
+          value: "updateEmployee",
+          name: "Update an Employee",
+        },
+        {
           value: "updateEmployeeRole",
           name: "Update Employee Role",
         },
@@ -169,22 +173,70 @@ const init = async () => {
     }
 
     if (option === "removeEmployee") {
-      // const allEmployees = await db.selectAll("employee");
-      // const question = [
-      //   {
-      //     type: "list",
-      //     message: "Please select the employee you would like to remove.",
-      //     name: "employeeId",
-      //     choices: generateEmployees(allEmployees),
-      //   },
-      // ];
-      // const { employeeId } = await getAnswers(question);
-      // await db.parameterisedQuery(`DELETE FROM employee WHERE ?? = "?"`, [
-      //   (id = employeeId),
-      // ]);
-      // const query2 = await getAllEmployees(db);
-      // console.table(query2);
+      const allEmployees = await db.selectAll("employee");
+      const question = [
+        {
+          type: "list",
+          message: "Please select the employee you would like to remove.",
+          name: "employeeId",
+          choices: generateEmployees(allEmployees),
+        },
+      ];
+      const { employeeId } = await getAnswers(question);
+      await db.parameterisedQuery(
+        `DELETE FROM employee WHERE ?? = "?"`,
+        ["id", employeeId],
+        true
+      );
     }
+
+    // if (option === "updateEmployee") {
+    //   const allEmployees = await db.selectAll("employee");
+
+    //   const questions = [
+    //     {
+    //       type: "list",
+    //       message: "What employee would you like to update?",
+    //       name: "employeeId",
+    //       choices: generateEmployees(allEmployees),
+    //     },
+    //     {
+    //       type: "confirm",
+    //       message: "Would you like to update the first name of the employee?",
+    //       name: "updateFirstName",
+    //     },
+    //     {
+    //       message: "Please enter the updated first name.",
+    //       name: "firstName",
+    //       when: (answer) => {
+    //         return answer.updateFirstName;
+    //       },
+    //     },
+    //     {
+    //       type: "confirm",
+    //       message: "Would you like to update the last name of the employee?",
+    //       name: "updateLastName",
+    //     },
+    //     {
+    //       message: "Please enter the updated last name.",
+    //       name: "lastName",
+    //       when: (answer) => {
+    //         return answer.updateLastName;
+    //       },
+    //     },
+    //   ];
+
+    //   const { employeeId, firstName, lastName } = await getAnswers(questions);
+
+    //   console.log(employeeId, firstName, lastName);
+
+    //   await db.parameterisedQuery(
+    //     `UPDATE employee SET first_name = ?, last_name = ? WHERE ?? = "?";`,
+    //     [firstName, lastName, (id = `"${employeeId}"`)]
+    //   );
+    //   const query2 = await getAllEmployees(db);
+    //   console.table(query2);
+    // }
 
     if (option === "viewAllRoles") {
       const query = await getAllRoles(db);
