@@ -33,6 +33,17 @@ class Db {
     );
   }
 
+  selectAll(tableName) {
+    return new Promise((resolve, reject) => {
+      const handleQuery = (err, rows) => {
+        if (err) reject(err);
+        resolve(rows);
+      };
+
+      this.connection.query(`SELECT * FROM ${tableName}`, handleQuery);
+    });
+  }
+
   query(sqlQuery) {
     return new Promise((resolve, reject) => {
       const handleQuery = (error, rows) => {
