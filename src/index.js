@@ -259,6 +259,35 @@ const init = async () => {
       console.info("Employee successfully updated.");
     }
 
+    if (option === "updateEmployeeRole") {
+      const allEmployees = await db.selectAll("employee");
+      const allRoles = await db.selectAll("role");
+
+      const questions = [
+        {
+          type: "list",
+          message: "What employee would you like to update?",
+          name: "employeeId",
+          choices: generateEmployees(allEmployees),
+        },
+        {
+          type: "list",
+          message: "What is the employee's new role?",
+          name: "roleId",
+          choices: generateRoles(allRoles),
+        },
+      ];
+
+      const { employeeId, roleId } = await getAnswers(questions);
+
+      await db.parameterisedQuery(
+        `UPDATE employee SET role_id = ? WHERE ?? = "?";`,
+        [roleId, "id", employeeId]
+      );
+
+      console.info("Employee's role has been successfully updated.");
+    }
+
     if (option === "viewAllRoles") {
       const query = await getAllRoles(db);
       console.table(query);
