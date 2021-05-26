@@ -14,4 +14,9 @@ const getAllRoles = async (db) => {
   return query;
 };
 
-module.exports = { getAllEmployees, getAllRoles };
+const getAllDepartments = async (db) => {
+  const query = await db.query("SELECT department FROM department");
+  return query;
+};
+
+module.exports = { getAllEmployees, getAllRoles, getAllDepartments };

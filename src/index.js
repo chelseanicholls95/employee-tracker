@@ -5,7 +5,11 @@ const {
   generateEmployees,
   generateDepartments,
 } = require("./utils/generateChoices");
-const { getAllEmployees, getAllRoles } = require("./utils/getAll");
+const {
+  getAllEmployees,
+  getAllRoles,
+  getAllDepartments,
+} = require("./utils/getAll");
 const getAnswers = require("./utils/getAnswers");
 
 const init = async () => {
@@ -218,8 +222,25 @@ const init = async () => {
     }
 
     if (option === "viewAllDepartments") {
-      const query = await db.query("SELECT name FROM department");
+      const query = await getAllDepartments(db);
       console.table(query);
+    }
+
+    if (option === "addDepartment") {
+      const question = [
+        {
+          message: "What is the name of the new department?",
+          name: "department",
+        },
+      ];
+
+      const { department } = await getAnswers(question);
+
+      await db.query(
+        `INSERT INTO department (department) VALUES ("${department}")`
+      );
+      const query2 = await getAllDepartments(db);
+      console.table(query2);
     }
 
     if (option === "exit") {
