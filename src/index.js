@@ -129,6 +129,36 @@ const init = async () => {
     }
 
     if (option === "viewAllEmployeesByManager") {
+      const allEmployees = await db.selectAll("employee");
+
+      const managers = allEmployees.filter((each) => {
+        return each.is_manager === 1;
+      });
+
+      const question = [
+        {
+          type: "list",
+          message: "Please select a manager.",
+          name: "managerId",
+          choices: generateEmployees(managers),
+        },
+      ];
+
+      const { managerId } = await getAnswers(question);
+
+      const query = await db.parameterisedQuery(
+        `SELECT first_name, last_name, title FROM ?? LEFT JOIN ?? ON ?? = ?? WHERE ?? = "?";`,
+        [
+          "employee",
+          "role",
+          "employee.role_id",
+          "role.id",
+          "employee.manager_id",
+          managerId,
+        ]
+      );
+
+      console.table(query);
     }
 
     if (option === "addEmployee") {
@@ -152,6 +182,11 @@ const init = async () => {
         },
         {
           type: "confirm",
+          message: "Is this employee a manager?",
+          name: "isManager",
+        },
+        {
+          type: "confirm",
           message: "Does this employee have a manager?",
           name: "hasManager",
         },
@@ -166,9 +201,8 @@ const init = async () => {
         },
       ];
 
-      let { firstName, lastName, roleId, managerId } = await getAnswers(
-        questions
-      );
+      let { firstName, lastName, roleId, isManager, managerId } =
+        await getAnswers(questions);
 
       if (managerId === undefined) {
         managerId = null;
@@ -286,6 +320,40 @@ const init = async () => {
       );
 
       console.info("Employee's role has been successfully updated.");
+    }
+
+    if (option === "updateEmployeeManager") {
+      const allEmployees = await db.selectAll("employee");
+      const managers = allEmployees.filter((each) => {
+        return each.is_manager === 1;
+      });
+
+      const questions = [
+        {
+          type: "list",
+          message: "Select the employee you would like to update.",
+          name: "employeeId",
+          choices: generateEmployees(allEmployees),
+        },
+        {
+          type: "list",
+          message: "Who is the employee's new manager?",
+          name: "managerId",
+          choices: generateEmployees(managers),
+        },
+      ];
+
+      const { employeeId, managerId } = await getAnswers(questions);
+
+      await db.parameterisedQuery(`UPDATE ?? SET ?? = ? WHERE ?? = "?";`, [
+        "employee",
+        "manager_id",
+        managerId,
+        "id",
+        employeeId,
+      ]);
+
+      console.info("Employee's manager has been successfully updated.");
     }
 
     if (option === "viewAllRoles") {
