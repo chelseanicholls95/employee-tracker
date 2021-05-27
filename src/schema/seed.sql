@@ -20,13 +20,13 @@ VALUES ("Sales Advisor", 23000, 1),
 
 -- seed employee table 
 INSERT INTO employee (first_name, last_name, role_id, manager_id)
-VALUES ("Bob", "Smith", 2, null),
-("Alice", "Green", 4, null),
-("Tom", "Grady", 6, null),
-("Susan", "Jones", 8, null),
-("Gracie", "Johnson", 1, 1),
-("Katie", "Simmonds", 1, 1),
-("Betty", "Sylvester", 3, 2),
-("Andy", "Roberts", 5, 3),
-("Barbara", "Jackson", 5, 3),
-("Tim", "Bond", 7, 4);
+VALUES ("Bob", "Smith", 2, true, null),
+("Alice", "Green", 4, true, null),
+("Tom", "Grady", 6, true, null),
+("Susan", "Jones", 8, true, null),
+("Gracie", "Johnson", 1, false, 1),
+("Katie", "Simmonds", 1, false, 1),
+("Betty", "Sylvester", 3, false, 2),
+("Andy", "Roberts", 5, false, 3),
+("Barbara", "Jackson", 5, false, 3),
+("Tim", "Bond", 7, false, 4);
