@@ -2,6 +2,14 @@
 
 ## Description
 
+A node app which allows the user to keep track of a company's departments, roles and employees. Functionality includes:
+
+- viewing current employees, roles and departments
+- adding new employees, roles and departments
+- removing employees, roles and departments
+- updating employees, employees roles and employees managers
+- viewing a utilized budget by department
+
 ## Table of Contents
 
 [Description](#description)  
@@ -18,7 +26,6 @@
 - SQL
 - Inquirer.js
 - MySQL
-- Jest
 
 ## Getting Started
 
