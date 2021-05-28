@@ -497,12 +497,11 @@ const init = async () => {
 
       const { department } = await getAnswers(question);
 
-      await db.parameterisedQuery(
-        `INSERT INTO ?? (??) VALUES (?)`, [
-          "department", "department", department
-        ]
-      );
-
+      await db.parameterisedQuery(`INSERT INTO ?? (??) VALUES (?)`, [
+        "department",
+        "department",
+        department,
+      ]);
     }
 
     if (option === "removeDepartment") {
@@ -531,6 +530,26 @@ const init = async () => {
     }
 
     if (option === "viewBudget") {
+      const allDepartments = await db.selectAll("department");
+
+      const question = [
+        {
+          type: "list",
+          message:
+            "Please select which department you would like to view the budget for.",
+          name: "departmentId",
+          choices: generateDepartments(allDepartments),
+        },
+      ];
+
+      const { departmentId } = await getAnswers(question);
+
+      const query = await db.parameterisedQuery(
+        `SELECT SUM(??) FROM ?? WHERE ?? = "?";`,
+        ["salary", "role", "department_id", departmentId]
+      );
+
+      console.table(query);
     }
 
     if (option === "exit") {
