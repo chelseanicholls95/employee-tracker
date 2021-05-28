@@ -147,8 +147,11 @@ const init = async () => {
       const { managerId } = await getAnswers(question);
 
       const query = await db.parameterisedQuery(
-        `SELECT first_name, last_name, title FROM ?? LEFT JOIN ?? ON ?? = ?? WHERE ?? = "?";`,
+        `SELECT ??, ??, ?? FROM ?? LEFT JOIN ?? ON ?? = ?? WHERE ?? = "?";`,
         [
+          "first_name",
+          "last_name",
+          "title",
           "employee",
           "role",
           "employee.role_id",
@@ -208,15 +211,31 @@ const init = async () => {
         managerId = null;
       }
 
-      await db.query(
-        `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ("${firstName}", "${lastName}", ${roleId}, ${managerId})`
+      await db.parameterisedQuery(
+        "INSERT INTO ?? (??, ??, ??, ??, ??) VALUES (?, ?, ?, ?, ?)",
+        [
+          "employee",
+          "first_name",
+          "last_name",
+          "role_id",
+          "is_manager",
+          "manager_id",
+          firstName,
+          lastName,
+          roleId,
+          isManager,
+          managerId,
+        ]
       );
-      const query2 = await getAllEmployees(db);
-      console.table(query2);
+
+      console.info(
+        `Employee has been successfully added to the ${db.database} database.`
+      );
     }
 
     if (option === "removeEmployee") {
       const allEmployees = await db.selectAll("employee");
+
       const question = [
         {
           type: "list",
@@ -225,12 +244,14 @@ const init = async () => {
           choices: generateEmployees(allEmployees),
         },
       ];
+
       const { employeeId } = await getAnswers(question);
-      await db.parameterisedQuery(
-        `DELETE FROM employee WHERE ?? = "?"`,
-        ["id", employeeId],
-        true
-      );
+
+      await db.parameterisedQuery(`DELETE FROM ?? WHERE ?? = "?"`, [
+        "employee",
+        "id",
+        employeeId,
+      ]);
 
       console.info(`Employee removed from ${db.database} database.`);
     }
@@ -269,25 +290,58 @@ const init = async () => {
             return answer.updateLastName;
           },
         },
+        {
+          type: "confirm",
+          message:
+            "Would you like to change the managerial status of this employee?",
+          name: "updateIsManager",
+        },
+        {
+          type: "confirm",
+          message: "Is this employee a manager?",
+          name: "isManager",
+          when: (answer) => {
+            return answer.updateIsManager;
+          },
+        },
       ];
 
-      const { firstName, lastName, employeeId } = await getAnswers(questions);
+      const { firstName, lastName, employeeId, isManager } = await getAnswers(
+        questions
+      );
+      const query = `UPDATE ?? SET ?? = ? WHERE ?? = "?";`;
+      const query2 = `UPDATE ?? SET ?? = ?, ?? = ? WHERE ?? = "?";`;
 
-      if (firstName === undefined) {
-        await db.parameterisedQuery(
-          `UPDATE employee SET last_name = ? WHERE ?? = "?";`,
-          [lastName, "id", employeeId]
-        );
-      } else if (lastName === undefined) {
-        await db.parameterisedQuery(
-          `UPDATE employee SET first_name = ? WHERE ?? = "?";`,
-          [firstName, "id", employeeId]
-        );
-      } else {
-        await db.parameterisedQuery(
-          `UPDATE employee SET first_name = ?, last_name = ? WHERE ?? = "?";`,
-          [firstName, lastName, "id", employeeId]
-        );
+      if (!firstName && lastName) {
+        await db.parameterisedQuery(query, [
+          "employee",
+          "last_name",
+          lastName,
+          "id",
+          employeeId,
+        ]);
+      } else if (!lastName && firstName) {
+        await db.parameterisedQuery(query, [
+          "employee",
+          "first_name",
+          firstName,
+          "id",
+          employeeId,
+        ]);
+      } else if (firstName && lastName) {
+        await db.parameterisedQuery(query2, [
+          "employee",
+          "first_name",
+          firstName,
+          "last_name",
+          lastName,
+          "id",
+          employeeId,
+        ]);
+      }
+
+      if (isManager) {
+        query, ["employee", "is_manager", isManager, "id", employeeId];
       }
 
       console.info("Employee successfully updated.");
@@ -314,10 +368,13 @@ const init = async () => {
 
       const { employeeId, roleId } = await getAnswers(questions);
 
-      await db.parameterisedQuery(
-        `UPDATE employee SET role_id = ? WHERE ?? = "?";`,
-        [roleId, "id", employeeId]
-      );
+      await db.parameterisedQuery(`UPDATE ?? SET ?? = ? WHERE ?? = "?";`, [
+        "employee",
+        "role_id",
+        roleId,
+        "id",
+        employeeId,
+      ]);
 
       console.info("Employee's role has been successfully updated.");
     }
