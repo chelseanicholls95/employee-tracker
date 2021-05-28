@@ -2,9 +2,9 @@ const {
   generateRoles,
   generateEmployees,
   generateDepartments,
-} = require("../utils/generateChoices");
+} = require("./generateChoices");
 
-const getAnswers = require("../utils/getAnswers");
+const getAnswers = require("./getAnswers");
 
 const addEmployee = async (db) => {
   const allRoles = await db.selectAll("role");

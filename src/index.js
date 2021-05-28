@@ -7,24 +7,23 @@ const {
   viewAllRoles,
   viewAllDepartments,
   viewBudget,
-} = require("./controllers/view");
-const { addEmployee, addRole, addDepartment } = require("./controllers/add");
+} = require("./utils/view");
+const { addEmployee, addRole, addDepartment } = require("./utils/add");
 const {
   removeDepartment,
   removeEmployee,
   removeRole,
-} = require("./controllers/remove");
+} = require("./utils/remove");
 const {
   updateEmployee,
   updateEmployeeRole,
   updateEmployeeManager,
-} = require("./controllers/update");
+} = require("./utils/update");
 
 const getAnswers = require("./utils/getAnswers");
 
 const init = async () => {
   const db = new Db("company_db");
-
   await db.start();
 
   let inProgress = true;
@@ -113,69 +112,41 @@ const init = async () => {
 
     const { option } = await getAnswers(optionsQuestion);
 
-    if (option === "viewAllEmployees") {
-      await viewAllEmployees(db);
-    }
-
-    if (option === "viewAllEmployeesByRole") {
-      await viewAllEmployeesByRole(db);
-    }
-
-    if (option === "viewAllEmployeesByManager") {
-      await viewAllEmployeesByManager(db);
-    }
-
-    if (option === "addEmployee") {
-      await addEmployee(db);
-    }
-
-    if (option === "removeEmployee") {
-      await removeEmployee(db);
-    }
-
-    if (option === "updateEmployee") {
-      await updateEmployee(db);
-    }
-
-    if (option === "updateEmployeeRole") {
-      await updateEmployeeRole(db);
-    }
-
-    if (option === "updateEmployeeManager") {
-      await updateEmployeeManager(db);
-    }
-
-    if (option === "viewAllRoles") {
-      await viewAllRoles(db);
-    }
-
-    if (option === "addRole") {
-      await addRole(db);
-    }
-
-    if (option === "removeRole") {
-      await removeRole(db);
-    }
-
-    if (option === "viewAllDepartments") {
-      await viewAllDepartments(db);
-    }
-
-    if (option === "addDepartment") {
-      await addDepartment(db);
-    }
-
-    if (option === "removeDepartment") {
-      await removeDepartment(db);
-    }
-
-    if (option === "viewBudget") {
-      await viewBudget(db);
-    }
-
     if (option === "exit") {
       inProgress = false;
       await db.end();
+    } else {
+      if (option === "viewAllEmployees") {
+        await viewAllEmployees(db);
+      } else if (option === "viewAllEmployeesByRole") {
+        await viewAllEmployeesByRole(db);
+      } else if (option === "viewAllEmployeesByManager") {
+        await viewAllEmployeesByManager(db);
+      } else if (option === "addEmployee") {
+        await addEmployee(db);
+      } else if (option === "removeEmployee") {
+        await removeEmployee(db);
+      } else if (option === "updateEmployee") {
+        await updateEmployee(db);
+      } else if (option === "updateEmployeeRole") {
+        await updateEmployeeRole(db);
+      } else if (option === "updateEmployeeManager") {
+        await updateEmployeeManager(db);
+      } else if (option === "viewAllRoles") {
+        await viewAllRoles(db);
+      } else if (option === "addRole") {
+        await addRole(db);
+      } else if (option === "removeRole") {
+        await removeRole(db);
+      } else if (option === "viewAllDepartments") {
+        await viewAllDepartments(db);
+      } else if (option === "addDepartment") {
+        await addDepartment(db);
+      } else if (option === "removeDepartment") {
+        await removeDepartment(db);
+      } else {
+        await viewBudget(db);
+      }
     }
   }
 };
