@@ -6,15 +6,21 @@ const {
   viewAllEmployeesByManager,
   viewAllRoles,
   viewAllDepartments,
-} = require("./controllers/viewAll");
+  viewBudget,
+} = require("./controllers/view");
+const { addEmployee, addRole, addDepartment } = require("./controllers/add");
 const {
-  generateRoles,
-  generateEmployees,
-  generateDepartments,
-} = require("./utils/generateChoices");
+  removeDepartment,
+  removeEmployee,
+  removeRole,
+} = require("./controllers/remove");
+const {
+  updateEmployee,
+  updateEmployeeRole,
+  updateEmployeeManager,
+} = require("./controllers/update");
 
 const getAnswers = require("./utils/getAnswers");
-const { addEmployee, addRole, addDepartment } = require("./controllers/add");
 
 const init = async () => {
   const db = new Db("company_db");
@@ -124,183 +130,19 @@ const init = async () => {
     }
 
     if (option === "removeEmployee") {
-      const allEmployees = await db.selectAll("employee");
-
-      const question = [
-        {
-          type: "list",
-          message: "Please select the employee you would like to remove.",
-          name: "employeeId",
-          choices: generateEmployees(allEmployees),
-        },
-      ];
-
-      const { employeeId } = await getAnswers(question);
-
-      await db.parameterisedQuery(`DELETE FROM ?? WHERE ?? = "?"`, [
-        "employee",
-        "id",
-        employeeId,
-      ]);
-
-      console.info(`Employee removed from ${db.database} database.`);
+      await removeEmployee(db);
     }
 
     if (option === "updateEmployee") {
-      const allEmployees = await db.selectAll("employee");
-
-      const questions = [
-        {
-          type: "list",
-          message: "What employee would you like to update?",
-          name: "employeeId",
-          choices: generateEmployees(allEmployees),
-        },
-        {
-          type: "confirm",
-          message: "Would you like to update the first name of the employee?",
-          name: "updateFirstName",
-        },
-        {
-          message: "Please enter the updated first name.",
-          name: "firstName",
-          when: (answer) => {
-            return answer.updateFirstName;
-          },
-        },
-        {
-          type: "confirm",
-          message: "Would you like to update the last name of the employee?",
-          name: "updateLastName",
-        },
-        {
-          message: "Please enter the updated last name.",
-          name: "lastName",
-          when: (answer) => {
-            return answer.updateLastName;
-          },
-        },
-        {
-          type: "confirm",
-          message:
-            "Would you like to change the managerial status of this employee?",
-          name: "updateIsManager",
-        },
-        {
-          type: "confirm",
-          message: "Is this employee a manager?",
-          name: "isManager",
-          when: (answer) => {
-            return answer.updateIsManager;
-          },
-        },
-      ];
-
-      const { firstName, lastName, employeeId, isManager } = await getAnswers(
-        questions
-      );
-      const query = `UPDATE ?? SET ?? = ? WHERE ?? = "?";`;
-      const query2 = `UPDATE ?? SET ?? = ?, ?? = ? WHERE ?? = "?";`;
-
-      if (!firstName && lastName) {
-        await db.parameterisedQuery(query, [
-          "employee",
-          "last_name",
-          lastName,
-          "id",
-          employeeId,
-        ]);
-      } else if (!lastName && firstName) {
-        await db.parameterisedQuery(query, [
-          "employee",
-          "first_name",
-          firstName,
-          "id",
-          employeeId,
-        ]);
-      } else if (firstName && lastName) {
-        await db.parameterisedQuery(query2, [
-          "employee",
-          "first_name",
-          firstName,
-          "last_name",
-          lastName,
-          "id",
-          employeeId,
-        ]);
-      }
-
-      if (isManager) {
-        query, ["employee", "is_manager", isManager, "id", employeeId];
-      }
-
-      console.info("Employee successfully updated.");
+      await updateEmployee(db);
     }
 
     if (option === "updateEmployeeRole") {
-      const allEmployees = await db.selectAll("employee");
-      const allRoles = await db.selectAll("role");
-
-      const questions = [
-        {
-          type: "list",
-          message: "Which employee would you like to update?",
-          name: "employeeId",
-          choices: generateEmployees(allEmployees),
-        },
-        {
-          type: "list",
-          message: "What is the employee's new role?",
-          name: "roleId",
-          choices: generateRoles(allRoles),
-        },
-      ];
-
-      const { employeeId, roleId } = await getAnswers(questions);
-
-      await db.parameterisedQuery(`UPDATE ?? SET ?? = ? WHERE ?? = "?";`, [
-        "employee",
-        "role_id",
-        roleId,
-        "id",
-        employeeId,
-      ]);
-
-      console.info("Employee's role has been successfully updated.");
+      await updateEmployeeRole(db);
     }
 
     if (option === "updateEmployeeManager") {
-      const allEmployees = await db.selectAll("employee");
-      const managers = allEmployees.filter((each) => {
-        return each.is_manager === 1;
-      });
-
-      const questions = [
-        {
-          type: "list",
-          message: "Select the employee you would like to update.",
-          name: "employeeId",
-          choices: generateEmployees(allEmployees),
-        },
-        {
-          type: "list",
-          message: "Who is the employee's new manager?",
-          name: "managerId",
-          choices: generateEmployees(managers),
-        },
-      ];
-
-      const { employeeId, managerId } = await getAnswers(questions);
-
-      await db.parameterisedQuery(`UPDATE ?? SET ?? = ? WHERE ?? = "?";`, [
-        "employee",
-        "manager_id",
-        managerId,
-        "id",
-        employeeId,
-      ]);
-
-      console.info("Employee's manager has been successfully updated.");
+      await updateEmployeeManager(db);
     }
 
     if (option === "viewAllRoles") {
@@ -312,28 +154,7 @@ const init = async () => {
     }
 
     if (option === "removeRole") {
-      const allRoles = await db.selectAll("role");
-
-      const question = [
-        {
-          type: "list",
-          message: "Please select the role you would like to remove.",
-          name: "roleId",
-          choices: generateRoles(allRoles),
-        },
-      ];
-
-      const { roleId } = await getAnswers(question);
-
-      await db.parameterisedQuery(`DELETE FROM ?? WHERE ?? = "?"`, [
-        "role",
-        "id",
-        roleId,
-      ]);
-
-      console.info(
-        `Role has been successfully removed from ${db.database} database.`
-      );
+      await removeRole(db);
     }
 
     if (option === "viewAllDepartments") {
@@ -345,51 +166,11 @@ const init = async () => {
     }
 
     if (option === "removeDepartment") {
-      const allDepartments = await db.selectAll("department");
-
-      const question = [
-        {
-          type: "list",
-          message: "Please select the department you would like to remove.",
-          name: "departmentId",
-          choices: generateDepartments(allDepartments),
-        },
-      ];
-
-      const { departmentId } = await getAnswers(question);
-
-      await db.parameterisedQuery(`DELETE FROM ?? WHERE ?? = "?"`, [
-        "department",
-        "id",
-        departmentId,
-      ]);
-
-      console.info(
-        `Department has been successfully removed from ${db.database} database.`
-      );
+      await removeDepartment(db);
     }
 
     if (option === "viewBudget") {
-      const allDepartments = await db.selectAll("department");
-
-      const question = [
-        {
-          type: "list",
-          message:
-            "Please select which department you would like to view the budget for.",
-          name: "departmentId",
-          choices: generateDepartments(allDepartments),
-        },
-      ];
-
-      const { departmentId } = await getAnswers(question);
-
-      const query = await db.parameterisedQuery(
-        `SELECT SUM(??) FROM ?? WHERE ?? = "?";`,
-        ["salary", "role", "department_id", departmentId]
-      );
-
-      console.table(query);
+      await viewBudget(db);
     }
 
     if (option === "exit") {

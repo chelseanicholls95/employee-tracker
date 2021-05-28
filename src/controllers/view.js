@@ -1,6 +1,7 @@
 const {
   generateRoles,
   generateEmployees,
+  generateDepartments,
 } = require("../utils/generateChoices");
 
 const getAnswers = require("../utils/getAnswers");
@@ -83,10 +84,34 @@ const viewAllDepartments = async (db) => {
   console.table(query);
 };
 
+const viewBudget = async (db) => {
+  const allDepartments = await db.selectAll("department");
+
+  const question = [
+    {
+      type: "list",
+      message:
+        "Please select which department you would like to view the budget for.",
+      name: "departmentId",
+      choices: generateDepartments(allDepartments),
+    },
+  ];
+
+  const { departmentId } = await getAnswers(question);
+
+  const query = await db.parameterisedQuery(
+    `SELECT SUM(??) FROM ?? WHERE ?? = "?";`,
+    ["salary", "role", "department_id", departmentId]
+  );
+
+  console.table(query);
+};
+
 module.exports = {
   viewAllEmployees,
   viewAllEmployeesByRole,
   viewAllEmployeesByManager,
   viewAllRoles,
   viewAllDepartments,
+  viewBudget,
 };
