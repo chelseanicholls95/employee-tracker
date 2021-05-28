@@ -1,16 +1,20 @@
 const Db = require("./db");
 
 const {
+  viewAllEmployees,
+  viewAllEmployeesByRole,
+  viewAllEmployeesByManager,
+  viewAllRoles,
+  viewAllDepartments,
+} = require("./controllers/viewAll");
+const {
   generateRoles,
   generateEmployees,
   generateDepartments,
 } = require("./utils/generateChoices");
-const {
-  getAllEmployees,
-  getAllRoles,
-  getAllDepartments,
-} = require("./utils/getAll");
+
 const getAnswers = require("./utils/getAnswers");
+const { addEmployee, addRole, addDepartment } = require("./controllers/add");
 
 const init = async () => {
   const db = new Db("company_db");
@@ -104,133 +108,19 @@ const init = async () => {
     const { option } = await getAnswers(optionsQuestion);
 
     if (option === "viewAllEmployees") {
-      const query = await getAllEmployees(db);
-      console.table(query);
+      await viewAllEmployees(db);
     }
 
     if (option === "viewAllEmployeesByRole") {
-      const allRoles = await db.selectAll("role");
-      const question = [
-        {
-          type: "list",
-          message: "What role would you like to view?",
-          name: "roleId",
-          choices: generateRoles(allRoles),
-        },
-      ];
-
-      const { roleId } = await getAnswers(question);
-
-      const query = await db.parameterisedQuery(
-        `SELECT ??, ?? FROM ?? WHERE ?? = "?"`,
-        ["first_name", "last_name", "employee", "role_id", roleId]
-      );
-      console.table(query);
+      await viewAllEmployeesByRole(db);
     }
 
     if (option === "viewAllEmployeesByManager") {
-      const allEmployees = await db.selectAll("employee");
-
-      const managers = allEmployees.filter((each) => {
-        return each.is_manager === 1;
-      });
-
-      const question = [
-        {
-          type: "list",
-          message: "Please select a manager.",
-          name: "managerId",
-          choices: generateEmployees(managers),
-        },
-      ];
-
-      const { managerId } = await getAnswers(question);
-
-      const query = await db.parameterisedQuery(
-        `SELECT ??, ??, ?? FROM ?? LEFT JOIN ?? ON ?? = ?? WHERE ?? = "?";`,
-        [
-          "first_name",
-          "last_name",
-          "title",
-          "employee",
-          "role",
-          "employee.role_id",
-          "role.id",
-          "employee.manager_id",
-          managerId,
-        ]
-      );
-
-      console.table(query);
+      await viewAllEmployeesByManager(db);
     }
 
     if (option === "addEmployee") {
-      const allRoles = await db.selectAll("role");
-      const allEmployees = await db.selectAll("employee");
-
-      const questions = [
-        {
-          message: "What is the first name of the employee?",
-          name: "firstName",
-        },
-        {
-          message: "What is the last name of the employee?",
-          name: "lastName",
-        },
-        {
-          type: "list",
-          message: "What is the job title of the employee?",
-          name: "roleId",
-          choices: generateRoles(allRoles),
-        },
-        {
-          type: "confirm",
-          message: "Is this employee a manager?",
-          name: "isManager",
-        },
-        {
-          type: "confirm",
-          message: "Does this employee have a manager?",
-          name: "hasManager",
-        },
-        {
-          type: "list",
-          message: "Please select a manager.",
-          name: "managerId",
-          choices: generateEmployees(allEmployees),
-          when: (answers) => {
-            return answers.hasManager;
-          },
-        },
-      ];
-
-      let { firstName, lastName, roleId, isManager, managerId } =
-        await getAnswers(questions);
-
-      if (!managerId) {
-        managerId = null;
-      }
-
-      await db.parameterisedQuery(
-        "INSERT INTO ?? (??, ??, ??, ??, ??) VALUES (?, ?, ?, ?, ?)",
-        [
-          "employee",
-          "first_name",
-          "last_name",
-          "role_id",
-          "is_manager",
-          "manager_id",
-          firstName,
-          lastName,
-          roleId,
-          isManager,
-          managerId,
-        ]
-      );
-
-      console.info(
-        `Employee has been successfully added to the ${db.database} database.`
-      );
+      await addEmployee(db);
     }
 
     if (option === "removeEmployee") {
@@ -414,47 +304,11 @@ const init = async () => {
     }
 
     if (option === "viewAllRoles") {
-      const query = await getAllRoles(db);
-      console.table(query);
+      await viewAllRoles(db);
     }
 
     if (option === "addRole") {
-      const allDepartments = await db.selectAll("department");
-
-      const questions = [
-        {
-          message: "What is the title of the new role?",
-          name: "title",
-        },
-        {
-          type: "number",
-          message: "What is the salary for this role?",
-          name: "salary",
-        },
-        {
-          type: "list",
-          message: "What department is the new role in?",
-          name: "departmentId",
-          choices: generateDepartments(allDepartments),
-        },
-      ];
-
-      const { title, salary, departmentId } = await getAnswers(questions);
-
-      const query = await db.parameterisedQuery(
-        "INSERT INTO ?? (??, ??, ??) VALUES (?, ?, ?)",
-        [
-          "role",
-          "title",
-          "salary",
-          "department_id",
-          title,
-          salary,
-          departmentId,
-        ]
-      );
-      const query2 = await getAllRoles(db);
-      console.table(query2);
+      await addRole(db);
     }
 
     if (option === "removeRole") {
@@ -483,25 +337,11 @@ const init = async () => {
     }
 
     if (option === "viewAllDepartments") {
-      const query = await getAllDepartments(db);
-      console.table(query);
+      await viewAllDepartments(db);
     }
 
     if (option === "addDepartment") {
-      const question = [
-        {
-          message: "What is the name of the new department?",
-          name: "department",
-        },
-      ];
-
-      const { department } = await getAnswers(question);
-
-      await db.parameterisedQuery(`INSERT INTO ?? (??) VALUES (?)`, [
-        "department",
-        "department",
-        department,
-      ]);
+      await addDepartment(db);
     }
 
     if (option === "removeDepartment") {
