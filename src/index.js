@@ -122,8 +122,8 @@ const init = async () => {
       const { roleId } = await getAnswers(question);
 
       const query = await db.parameterisedQuery(
-        `SELECT first_name, last_name FROM ?? WHERE ?? = "?"`,
-        ["employee", "role_id", roleId]
+        `SELECT ??, ?? FROM ?? WHERE ?? = "?"`,
+        ["first_name", "last_name", "employee", "role_id", roleId]
       );
       console.table(query);
     }
@@ -207,7 +207,7 @@ const init = async () => {
       let { firstName, lastName, roleId, isManager, managerId } =
         await getAnswers(questions);
 
-      if (managerId === undefined) {
+      if (!managerId) {
         managerId = null;
       }
 
@@ -354,7 +354,7 @@ const init = async () => {
       const questions = [
         {
           type: "list",
-          message: "What employee would you like to update?",
+          message: "Which employee would you like to update?",
           name: "employeeId",
           choices: generateEmployees(allEmployees),
         },
@@ -441,8 +441,17 @@ const init = async () => {
 
       const { title, salary, departmentId } = await getAnswers(questions);
 
-      const query = await db.query(
-        `INSERT INTO role (title, salary, department_id) VALUES ("${title}", ${salary}, ${departmentId})`
+      const query = await db.parameterisedQuery(
+        "INSERT INTO ?? (??, ??, ??) VALUES (?, ?, ?)",
+        [
+          "role",
+          "title",
+          "salary",
+          "department_id",
+          title,
+          salary,
+          departmentId,
+        ]
       );
       const query2 = await getAllRoles(db);
       console.table(query2);
@@ -488,11 +497,12 @@ const init = async () => {
 
       const { department } = await getAnswers(question);
 
-      await db.query(
-        `INSERT INTO department (department) VALUES ("${department}")`
+      await db.parameterisedQuery(
+        `INSERT INTO ?? (??) VALUES (?)`, [
+          "department", "department", department
+        ]
       );
-      const query2 = await getAllDepartments(db);
-      console.table(query2);
+
     }
 
     if (option === "removeDepartment") {
