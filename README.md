@@ -33,12 +33,18 @@ A node app which allows the user to keep track of a company's departments, roles
 git clone git@github.com:chelseanicholls95/employee-tracker.git
 cd employee-tracker
 code .
+```
+
+### Run Application
+
+```
 npm install
+npm run start
 ```
 
 ## Link to Video of Working Application
 
-View the video of the working application [here]().
+View the video of the working application [here](https://drive.google.com/file/d/1NjK4ljlDzpoZ4S5YU0gk2K_zw54_RDVs/view).
 
 ## License
 
