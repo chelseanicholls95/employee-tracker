@@ -1,3 +1,5 @@
+require("console.table");
+
 const {
   generateRoles,
   generateEmployees,
