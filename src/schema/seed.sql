@@ -19,7 +19,7 @@ VALUES ("Sales Advisor", 23000, 1),
 ("Chief Financial Operator", 90000, 4);
 
 -- seed employee table 
-INSERT INTO employee (first_name, last_name, role_id, manager_id)
+INSERT INTO employee (first_name, last_name, role_id, is_manager, manager_id)
 VALUES ("Bob", "Smith", 2, true, null),
 ("Alice", "Green", 4, true, null),
 ("Tom", "Grady", 6, true, null),

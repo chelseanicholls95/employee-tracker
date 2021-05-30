@@ -87,7 +87,13 @@ const updateEmployee = async (db) => {
   }
 
   if (isManager) {
-    query, ["employee", "is_manager", isManager, "id", employeeId];
+    await db.parameterisedQuery(query, [
+      "employee",
+      "is_manager",
+      isManager,
+      "id",
+      employeeId,
+    ]);
   }
 
   console.info("Employee successfully updated.");
