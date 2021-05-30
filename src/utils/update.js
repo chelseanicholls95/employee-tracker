@@ -23,6 +23,7 @@ const updateEmployee = async (db) => {
       when: (answer) => {
         return answer.updateFirstName;
       },
+      validate: (firstName) => firstName !== "",
     },
     {
       type: "confirm",
@@ -35,6 +36,7 @@ const updateEmployee = async (db) => {
       when: (answer) => {
         return answer.updateLastName;
       },
+      validate: (updateLastName) => updateLastName !== "",
     },
     {
       type: "confirm",

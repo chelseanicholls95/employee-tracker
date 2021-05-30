@@ -9,15 +9,20 @@ const getAnswers = require("./getAnswers");
 const addEmployee = async (db) => {
   const allRoles = await db.selectAll("role");
   const allEmployees = await db.selectAll("employee");
+  const managers = allEmployees.filter((each) => {
+    return each.is_manager === 1;
+  });
 
   const questions = [
     {
       message: "What is the first name of the employee?",
       name: "firstName",
+      validate: (firstName) => firstName !== "",
     },
     {
       message: "What is the last name of the employee?",
       name: "lastName",
+      validate: (lastName) => lastName !== "",
     },
     {
       type: "list",
@@ -39,7 +44,7 @@ const addEmployee = async (db) => {
       type: "list",
       message: "Please select a manager.",
       name: "managerId",
-      choices: generateEmployees(allEmployees),
+      choices: generateEmployees(managers),
       when: (answers) => {
         return answers.hasManager;
       },
