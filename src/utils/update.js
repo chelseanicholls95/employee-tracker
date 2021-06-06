@@ -135,9 +135,7 @@ const updateEmployeeRole = async (db) => {
 
 const updateEmployeeManager = async (db) => {
   const allEmployees = await db.selectAll("employee");
-  const managers = allEmployees.filter((each) => {
-    return each.is_manager === 1;
-  });
+  const managers = allEmployees.filter((each) => each.is_manager === 1);
 
   const questions = [
     {
