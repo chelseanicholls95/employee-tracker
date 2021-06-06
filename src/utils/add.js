@@ -9,9 +9,7 @@ const getAnswers = require("./getAnswers");
 const addEmployee = async (db) => {
   const allRoles = await db.selectAll("role");
   const allEmployees = await db.selectAll("employee");
-  const managers = allEmployees.filter((each) => {
-    return each.is_manager === 1;
-  });
+  const managers = allEmployees.filter((each) => each.is_manager === 1);
 
   const questions = [
     {
@@ -51,13 +49,8 @@ const addEmployee = async (db) => {
     },
   ];
 
-  let { firstName, lastName, roleId, isManager, managerId } = await getAnswers(
-    questions
-  );
-
-  if (!managerId) {
-    managerId = null;
-  }
+  const { firstName, lastName, roleId, isManager, managerId } =
+    await getAnswers(questions);
 
   await db.parameterisedQuery(
     "INSERT INTO ?? (??, ??, ??, ??, ??) VALUES (?, ?, ?, ?, ?)",
@@ -72,7 +65,7 @@ const addEmployee = async (db) => {
       lastName,
       roleId,
       isManager,
-      managerId,
+      managerId || null,
     ]
   );
 
@@ -113,7 +106,8 @@ const addRole = async (db) => {
     salary,
     departmentId,
   ]);
-  console.log("Role has been successfully created.");
+
+  console.info("Role has been successfully created.");
 };
 
 const addDepartment = async (db) => {
@@ -131,7 +125,8 @@ const addDepartment = async (db) => {
     "department",
     department,
   ]);
-  console.log("Department has been successfully created.");
+
+  console.info("Department has been successfully created.");
 };
 
 module.exports = {
